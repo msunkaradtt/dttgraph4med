@@ -1,0 +1,39 @@
+version: '3.8'
+
+volumes:
+  neoj-app-uploads:
+    name: neoj-app-uploads
+
+networks:
+  neoj-app-network:
+    name: neoj-app-network
+    driver: bridge
+
+services:
+  dttmedneo4j:
+    container_name: dttmedneo4j
+    image: neo4j:latest
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+    volumes:
+      - ./:/app
+    networks:
+      - neoj-app-network
+  dttmedneodash:
+    container_name: dttmedneodash
+    image: neo4jlabs/neodash:latest
+    ports:
+      - 5005:5005
+    volumes:
+      - ./:/app
+    networks:
+      - neoj-app-network
+    depends_on:
+      - dttmedneo4j

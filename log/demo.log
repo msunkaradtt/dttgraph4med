@@ -1,0 +1,144 @@
+2024-12-17 16:55:01,934 [root] [INFO ]  Starting database setup
+2024-12-17 16:55:01,935 [root] [INFO ]  Deleting all nodes and relationships...
+2024-12-17 16:55:01,983 [root] [INFO ]  Creating nodes ...
+2024-12-17 16:55:01,985 [root] [INFO ]  Creating patient nodes ...
+2024-12-17 16:55:01,985 [root] [DEBUG]  Reading csv data from file "patients.csv" in "res/csv/"...
+2024-12-17 16:55:02,174 [root] [INFO ]  Created 100 Patients
+2024-12-17 16:55:02,182 [root] [INFO ]  Creating family nodes ...
+2024-12-17 16:55:02,541 [root] [INFO ]  Creating project nodes ...
+2024-12-17 16:55:02,836 [root] [INFO ]  Creating diagnosis nodes ...
+2024-12-17 16:55:02,836 [root] [DEBUG]  Reading csv data from file "conditions.csv" in "res/csv/"...
+2024-12-17 16:55:12,746 [root] [INFO ]  Created 80 Diagnoses
+2024-12-17 16:55:12,767 [root] [INFO ]  Creating order nodes ...
+2024-12-17 16:55:13,417 [root] [INFO ]  Created 146 Orders
+2024-12-17 16:55:13,428 [root] [INFO ]  Creating material nodes ...
+2024-12-17 16:55:15,206 [root] [INFO ]  Created 607 Materials
+2024-12-17 16:55:15,422 [root] [INFO ]  Creating analysis nodes...
+2024-12-17 16:55:17,437 [root] [INFO ]  Created 224 Analyses
+2024-12-17 16:55:17,526 [root] [INFO ]  Creating fusions RNASeq...
+2024-12-17 16:55:17,528 [root] [DEBUG]  Reading csv data from file "fusions.csv" in "res/csv/"...
+2024-12-17 16:55:18,045 [root] [INFO ]  Created 189 Fusions (RNASeq)
+2024-12-17 16:55:18,122 [root] [INFO ]  Creating fusions Array CGH...
+2024-12-17 16:55:18,126 [root] [INFO ]  Created 0 new Fusions (Array CGH)
+2024-12-17 16:55:18,311 [root] [INFO ]  Merging fusion nodes...
+2024-12-17 16:55:18,343 [root] [DEBUG]  Running query: //Merge A-B and B-A
+MATCH (a:Fusion), (b:Fusion)
+WHERE id(a) < id(b) AND a.name =~ "^\\w+-\\w+"
+WITH a, b, split(a.name, '-') AS sa, split(b.name, '-') AS sb
+WHERE all(w IN sa WHERE w IN sb)
+WITH CASE
+    WHEN size(a.name) <= size(b.name) THEN [a,b]
+    ELSE [b,a]
+    END
+AS nodes
+LIMIT 20
+CALL apoc.refactor.mergeNodes(nodes, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names, node.other_names AS x
+WITH n, head(names) AS name,
+CASE
+	WHEN size(x) > 0 THEN tail(names) + x
+    ELSE tail(names)
+END AS other_names
+SET n.name = name, n.other_names = other_names
+RETURN n
+2024-12-17 16:55:18,461 [root] [DEBUG]  Executed query: [[<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:739' labels=frozenset({'Fusion'}) properties={'name': 'ABL1-BCR', 'other_names': ['BCR-ABL1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:740' labels=frozenset({'Fusion'}) properties={'name': 'ABL1-ETV6', 'other_names': ['ETV6-ABL1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:743' labels=frozenset({'Fusion'}) properties={'name': 'ACIN1-NUTM1', 'other_names': ['NUTM1-ACIN1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:745' labels=frozenset({'Fusion'}) properties={'name': 'AFF1-KMT2A', 'other_names': ['KMT2A-AFF1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:748' labels=frozenset({'Fusion'}) properties={'name': 'AUTS2-PAX5', 'other_names': ['PAX5-AUTS2']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:752' labels=frozenset({'Fusion'}) properties={'name': 'BCL9-MEF2D', 'other_names': ['MEF2D-BCL9']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:763' labels=frozenset({'Fusion'}) properties={'name': 'CRLF2-P2RY8', 'other_names': ['P2RY8-CRLF2']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:766' labels=frozenset({'Fusion'}) properties={'name': 'ELF1-FOXO1', 'other_names': ['FOXO1-ELF1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:767' labels=frozenset({'Fusion'}) properties={'name': 'EP300-ZNF384', 'other_names': ['ZNF384-EP300']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:768' labels=frozenset({'Fusion'}) properties={'name': 'ERBB4-IKZF2', 'other_names': ['IKZF2-ERBB4']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:774' labels=frozenset({'Fusion'}) properties={'name': 'ETV6-MN1', 'other_names': ['MN1-ETV6-Fusion']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:781' labels=frozenset({'Fusion'}) properties={'name': 'FBRSL1-PAX5', 'other_names': ['PAX5-FBRSL1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:787' labels=frozenset({'Fusion'}) properties={'name': 'HLF-TCF3', 'other_names': ['TCF3-HLF']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:801' labels=frozenset({'Fusion'}) properties={'name': 'JAK2-PAX5', 'other_names': ['PAX5-JAK2']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:803' labels=frozenset({'Fusion'}) properties={'name': 'JAK2-TERF2', 'other_names': ['TERF2-JAK2']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:803' labels=frozenset({'Fusion'}) properties={'name': 'JAK2-TERF2', 'other_names': ['TERF2-JAK2']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:814' labels=frozenset({'Fusion'}) properties={'name': 'KMT2A-MLLT3', 'other_names': ['MLLT3-KMT2A']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:827' labels=frozenset({'Fusion'}) properties={'name': 'MLLT10-PICALM', 'other_names': ['PICALM-MLLT10']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:874' labels=frozenset({'Fusion'}) properties={'name': 'PBX1-TCF3', 'other_names': ['TCF3-PBX1']}>], [<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:889' labels=frozenset({'Fusion'}) properties={'name': 'RUNX1-RUNX1T1', 'other_names': ['RUNX1T1-RUNX1']}>]], ['n']
+2024-12-17 16:55:18,462 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name IN ['BCR-ABL', 'BCR-ABL1', 'ABL1-BCR', 'ABL-BCR']
+    OR any(name IN f.other_names WHERE name IN ['BCR-ABL', 'BCR-ABL1', 'ABL1-BCR', 'ABL-BCR'] )
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names, node.other_names AS x
+WITH n, head(names) AS name,
+CASE
+	WHEN size(x) > 0 THEN tail(names) + x
+    ELSE tail(names)
+END AS other_names
+SET n.name = name, n.other_names = other_names
+RETURN n
+2024-12-17 16:55:18,465 [root] [DEBUG]  Executed query: [], ['n']
+2024-12-17 16:55:18,465 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name IN ['ETV6-RUNX1', 'RUNX1-ETV6','TEL-AML1', 'AML1-TEL']
+    OR any(name IN f.other_names WHERE name IN ['ETV6-RUNX1', 'RUNX1-ETV6','TEL-AML1', 'AML1-TEL'])
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names, node.other_names AS x
+WITH n, head(names) AS name,
+CASE
+	WHEN size(x) > 0 THEN tail(names) + x
+    ELSE tail(names)
+END AS other_names
+SET n.name = name, n.other_names = other_names
+RETURN n
+2024-12-17 16:55:18,468 [root] [DEBUG]  Executed query: [[<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:777' labels=frozenset({'Fusion'}) properties={'name': 'ETV6-RUNX1', 'other_names': ['TEL-AML1']}>]], ['n']
+2024-12-17 16:55:18,468 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name IN ['TCF3-PBX1', 'PBX1-TCF3', 'E2A-PBX1', 'PBX1-E2A']
+    OR any(name IN f.other_names WHERE name IN ['TCF3-PBX1', 'PBX1-TCF3', 'E2A-PBX1', 'PBX1-E2A'])
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names, node.other_names AS x
+WITH n, head(names) AS name,
+CASE
+	WHEN size(x) > 0 THEN tail(names) + x
+    ELSE tail(names)
+END AS other_names
+SET n.name = name, n.other_names = other_names
+RETURN n
+2024-12-17 16:55:18,471 [root] [DEBUG]  Executed query: [], ['n']
+2024-12-17 16:55:18,471 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name STARTS WITH 'MLL-' OR f.name ENDS WITH '-MLL' 
+    OR any (n IN f.other_names WHERE n STARTS WITH 'MLL-' OR n ENDS WITH '-MLL')
+    OR f.name CONTAINS 'KMT2A'
+    OR any (n IN f.other_names WHERE n CONTAINS 'KMT2A')
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names
+SET n.name = 'KMT2A group', n.other_names = names
+RETURN n
+2024-12-17 16:55:18,475 [root] [DEBUG]  Executed query: [[<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:745' labels=frozenset({'Fusion'}) properties={'name': 'KMT2A group', 'other_names': ['AFF1-KMT2A', 'KMT2A-AFF4', 'KMT2A-ELL', 'KMT2A-MLLT1', 'KMT2A-MLLT10', 'KMT2A-MLLT3', 'KMT2A-MLLT4', 'MLL-GAS7', 'MLL-MLLT1', 'MLLT3-MLL', 'TKT-KMT2A', 'UBAP1-KMT2A']}>]], ['n']
+2024-12-17 16:55:18,475 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name CONTAINS 'PAX5'
+    OR any (n IN f.other_names WHERE n CONTAINS 'PAX5')
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names
+SET n.name = 'PAX5 group', n.other_names = names
+RETURN n
+2024-12-17 16:55:18,481 [root] [DEBUG]  Executed query: [[<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:748' labels=frozenset({'Fusion'}) properties={'name': 'PAX5 group', 'other_names': ['AUTS2-PAX5', 'AUTS-PAX5', 'FBRSL1-PAX5', 'FOXP1-PAX5', 'GTF2I-PAX5', 'JAK2-PAX5', 'LINC01251-PAX5', 'PAX5-ARHGAP22', 'PAX5-C20orf112', 'PAX5-C20orf643', 'PAX5-CBFA2T3', 'PAX5-COMMD7', 'PAX5-CPSF7', 'PAX5-DACH1', 'PAX5-DACH2', 'PAX5-ELN', 'PAX5-ESRRB', 'PAX5-ETV6', 'PAX5-FKBP15', 'PAX5-KANK2', 'PAX5-LINC01400', 'PAX5-MPRIP', 'PAX5-NCOA5', 'PAX5-PML', 'PAX5-PRPF19', 'PAX5-RHOXF2B', 'PAX5-RPN2', 'PAX5-RUNX1', 'PAX5-SIGMAR1', 'PAX5-SOX5', 'PAX5-THSB1', 'PAX5-WDR5', 'PAX5-ZCCHC7', 'PAX5-ZEB1', 'PAX5-ZNF521', 'SLC24A2-PAX5', 'THRAP3-PAX5']}>]], ['n']
+2024-12-17 16:55:18,481 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name CONTAINS 'ZNF384'
+    OR any (n IN f.other_names WHERE n CONTAINS 'ZNF384')
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names
+SET n.name = 'ZNF384 group', n.other_names = names
+RETURN n
+2024-12-17 16:55:18,485 [root] [DEBUG]  Executed query: [[<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:746' labels=frozenset({'Fusion'}) properties={'name': 'ZNF384 group', 'other_names': ['ARID1B-ZNF384', 'EP300-ZNF384', 'SEC24B-ZNF384', 'SPI1-ZNF384', 'TCF3-ZNF384', 'ZNF384-C11orf74', 'ZNF384-CREBBP', 'ZNF384-EWSR1', 'ZNF384-SMARCA2', 'ZNF384-SORL1', 'ZNF384-TAF15', 'ZNF384-TCF3']}>]], ['n']
+2024-12-17 16:55:18,486 [root] [DEBUG]  Running query: MATCH (f:Fusion)
+WHERE f.name CONTAINS 'MEF2D'
+    OR any (n IN f.other_names WHERE n CONTAINS 'MEF2D')
+WITH collect(f) AS fusions
+WHERE size(fusions) > 1
+CALL apoc.refactor.mergeNodes(fusions, {properties: 'combine'})
+YIELD node
+WITH node AS n, node.name AS names
+SET n.name = 'MEF2D group', n.other_names = names
+RETURN n
+2024-12-17 16:55:18,489 [root] [DEBUG]  Executed query: [[<Node element_id='4:e0aac924-30ae-4afa-ab8a-5e4d511146bf:752' labels=frozenset({'Fusion'}) properties={'name': 'MEF2D group', 'other_names': ['BCL9-MEF2D', 'MEF2D-CCDC102B', 'MEF2D-HNRNPUL1']}>]], ['n']
+2024-12-17 16:55:18,556 [root] [INFO ]  Creating result nodes ...
+2024-12-17 16:55:19,235 [root] [INFO ]  Created 224 Results
+2024-12-17 16:55:19,307 [root] [INFO ]  Adding dashboard ...
+2024-12-17 16:55:19,314 [root] [INFO ]  Added neodash dashboard node
+2024-12-17 16:55:19,374 [root] [INFO ]  Finished
